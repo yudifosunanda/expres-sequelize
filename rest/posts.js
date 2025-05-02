@@ -1,20 +1,20 @@
-const db = require('./../db');
+const db = require('../db');
 const { query } = require('express-validator');
-const User = require('../models/User');
+const Post = require('../models/Posts');
 
-const getUser = async (req, res) => {
+const getPost = async (req, res) => {
   try {
-    const result = await User.findAll();
+    const result = await Post.findAll();
     res.json(result); // Send the rows as JSON
   } catch (err) {
     res.status(500).send('Error executing query');
   }
 };
 
-const getUserById = async (req, res) => {
+const getPostById = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await User.findByPk(id);
+    const result = await Post.findByPk(id);
 
     if(result == null){
       let response = {
@@ -33,12 +33,11 @@ const getUserById = async (req, res) => {
   }
 };
 
-const addUser = async(req, res) => {
-  let {name, email, gender, picture} = req.body;
-  const profilePic = req.file ? req.file.filename : null;
-
+const addPost = async(req, res) => {
+  let {usr_id, post} = req.body;
+console.log(req.body)
   try {
-    const result = await User.create({"name":name, 'email':email, "gender":gender, "profilePic":profilePic});
+    const result = await Post.create({"usr_id":usr_id, "post":post});
     res.json(result); // Send the rows as JSON
   } catch (err) {
     console.error('Error executing query', err);
@@ -46,19 +45,18 @@ const addUser = async(req, res) => {
   }
 };
 
-const updateUser = async(req, res) => {
+const updatePost = async(req, res) => {
   const { id } = req.params; // Extract id from URL parameters
-  let {name, email, gender} = req.body;
+  let {usr_id, post} = req.body;
 
   try {
-    const updateData = await User.findByPk(id);
+    const updateData = await Post.findByPk(id);
 
-    updateData.name = name;
-    updateData.email = email;
-    updateData.gender = gender;
+    updateData.usr_id = usr_id;
+    updateData.post = post;
 
     await updateData.save();
-
+    
     res.json(updateData); // Send the rows as JSON
   } catch (err) {
     console.error('Error executing query', err);
@@ -66,15 +64,15 @@ const updateUser = async(req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const deletePost = async (req, res) => {
   const { id } = req.params; // Extract id from URL parameters
 
   try {
-    const data = await User.findByPk(id);
+    const data = await Post.findByPk(id);
 
     data.destroy();
     
-    res.json("success deleted user"); // Send the rows as JSON
+    res.json("success deleted post"); // Send the rows as JSON
   } catch (err) {
     console.error('Error executing query', err);
     res.status(500).send('Error executing query');
@@ -82,9 +80,9 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
-  getUser,
-  getUserById,
-  addUser,
-  updateUser,
-  deleteUser
+  getPost,
+  getPostById,
+  addPost,
+  updatePost,
+  deletePost
 };

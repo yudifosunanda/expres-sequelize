@@ -5,10 +5,13 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 var csrf = require('csurf');
 const cors = require('cors');
-// user model
-const { getUser, getUserbyId, addUser, updateUser, deleteUser } = require('./rest/user');
+// models
+const { getUser, getUserById, addUser, updateUser, deleteUser } = require('./rest/user');
+const { getPost, getPostById, addPost, updatePost, deletePost } = require('./rest/posts');
+
 //validator
 const { addUserValidationRules, updateUserValidationRules } = require('./rest/userValidator');
+const { addPostValidationRules, updatePostValidationRules } = require('./rest/postValidator');
 const { validationResult } = require('express-validator');
 //file inputs
 const multer = require('multer');
@@ -19,7 +22,6 @@ const app = express();
 
 // sequilize
 const sequelize = require('./db/sequelize');
-const User = require('./models/User'); // Import models
 
 // Configure middleware
 app.use(bodyParser.json());
@@ -99,17 +101,25 @@ app.get('/', (req, res)=>{
   res.json(datas);
 });
 
-  app.get('/users', getUser);
-  app.get('/users/:id', getUserbyId);
-  app.post('/user/add',csrfProtection, upload.single('profilePic'), addUserValidationRules(), validate, addUser);
-  app.put('/user/update/:id', updateUser);
-  app.delete('/user/delete/:id', deleteUser);
+// user routes
+app.get('/users', getUser);
+app.get('/users/:id', getUserById);
+app.post('/user/add',csrfProtection, upload.single('profilePic'), addUserValidationRules(), validate, addUser);
+app.put('/user/update/:id', updateUser);
+app.delete('/user/delete/:id', deleteUser);
+
+// post  routes
+app.get('/post', getPost);
+app.get('/post/:id', getPostById);
+app.post('/post/add',csrfProtection, upload.none(), validate, addPost);
+app.put('/post/update/:id', upload.none(), updatePost);
+app.delete('/post/delete/:id', deletePost);
 
 
-  // Sync models with database
-  sequelize.sync({ alter: true }) // Use { force: true } to drop tables and recreate them
-  .then(() => console.log('Database synced'))
-  .catch(err => console.error('Error syncing database:', err));
+// Sync models with database
+sequelize.sync({ alter: true }) // Use { force: true } to drop tables and recreate them
+.then(() => console.log('Database synced'))
+.catch(err => console.error('Error syncing database:', err));
 
 // Start the server
 app.listen(3000, () => {
