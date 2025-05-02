@@ -7,7 +7,8 @@ Post.belongsTo(User, { foreignKey: 'usr_id' });
 
 const getPost = async (req, res) => {
   try {
-    const result = await Post.findAll({   include: {
+    const result = await Post.findAll({   
+      include: {
       model: User,
       attributes: ['usr_id', 'name'] // Choose what fields to include
     }});
