@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 var csrf = require('csurf');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
 // models
 const { getUser, getUserById, addUser, updateUser, deleteUser } = require('./rest/user');
 const { getPost, getPostById, addPost, updatePost, deletePost } = require('./rest/posts');
@@ -23,6 +26,15 @@ const app = express();
 // sequilize
 const sequelize = require('./db/sequelize');
 
+// rate limit
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+	// store: ... , // Redis, Memcached, etc. See below.
+})
+
 // Configure middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -31,6 +43,8 @@ app.use(cookieParser('secretKey'));
 var csrfProtection = csrf({ cookie: true });
 app.use(csrfProtection);
 app.use('/uploads', express.static('uploads'));
+app.use(helmet());
+app.use(limiter)
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
