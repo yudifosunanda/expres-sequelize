@@ -1,10 +1,18 @@
 const db = require('./../db');
 const { query } = require('express-validator');
 const User = require('../models/User');
+const Post = require('../models/Posts');
+
+User.hasMany(Post, { foreignKey: 'usr_id' });
 
 const getUser = async (req, res) => {
   try {
-    const result = await User.findAll();
+    const result = await User.findAll({
+      include: {
+        model: Post,
+        attributes: ['post_id', 'post'] // Choose what fields to include
+      }
+    });
     res.json(result); // Send the rows as JSON
   } catch (err) {
     res.status(500).send('Error executing query');
