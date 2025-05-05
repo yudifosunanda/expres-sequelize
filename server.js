@@ -125,7 +125,7 @@ app.delete('/user/delete/:id', deleteUser);
 // post  routes
 app.get('/post', getPost);
 app.get('/post/:id', getPostById);
-app.post('/post/add',csrfProtection, upload.none(), validate, addPost);
+app.post('/post/add',csrfProtection, upload.none(), addPostValidationRules(), validate, addPost);
 app.put('/post/update/:id', upload.none(), updatePost);
 app.delete('/post/delete/:id', deletePost);
 
